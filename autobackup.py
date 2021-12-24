@@ -46,8 +46,8 @@ try:
     username = getpass.getuser()
     hostname = socket.gethostname()
     o_system = platform.system()
-    datapath = f'{os.getcwd()}/{destination}/{name}/Data'
-    bkpath = f'{os.getcwd()}/{destination}/{name}'
+    datapath = f'{destination}/{name}/Data'
+    bkpath = f'{destination}/{name}'
 except IndexError:
     print('! No arguments passed.')
     print('- Usage:')
