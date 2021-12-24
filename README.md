@@ -23,5 +23,7 @@ Source is your backup folder (where Data and ktbackup.json are located).
 
 The script will read `ktbackup.json` and restore your files to destination.
 
+*P. S. if Halo module is installed on your system (```pip install halo```), backing up and restoring will have a cool animation!*
+
 ## To do
 - Add remote hosts support
