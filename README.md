@@ -22,3 +22,6 @@ Source is your backup folder (where Data and ktbackup.json are located).
 **Destination will NOT contain Data and ktbackup.json, just your backup data.**
 
 The script will read `ktbackup.json` and restore your files to destination.
+
+## To do
+- Add remote hosts support
