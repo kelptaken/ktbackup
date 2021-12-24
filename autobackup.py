@@ -35,6 +35,7 @@ try:
     'frames': ['[-----]', '[#----]', '[-#---]', '[--#--]', '[---#-]', '[----#]']
 }
     backupSpinner = Halo(text='Backing up...', spinner=backupSpinnerAnim)
+    restoreSpinner = Halo(text='Restoring', spinner=backupSpinnerAnim)
 except BaseException:
     isHaloAvailable = False
 
@@ -187,6 +188,60 @@ def backup(source, destination, name, username, hostname):
         shutil.copytree(source, datapath, dirs_exist_ok=True)
         print('Done!')
 
+
+# Restore
+def restore(source, destination):
+    print('- Checking backup...')
+    if os.path.exists(f'{source}/ktbackup.json'):
+        print('- ktbacakup.json exists')
+    else:
+        exit('! ktbackup.json does not exist. Exiting.')
+
+    if os.path.exists(f'{source}/Data'):
+        print('- Data exists')
+    else:
+        exit('! Data does not exist. Exiting.')
+
+    if os.path.exists(destination):
+        print('- Destination exists')
+    else:
+        print('- Destination does not exist, creating a folder')
+        os.mkdir(destination)
+
+    if os.path.isfile(destination):
+        exit('! Destination cannot be a file. Exiting.')
+    else:
+        print('- Destination is a folder.')
+
+    print('- Fetching backup data...')
+
+    jsonFile = open(f'{source}/ktbackup.json')
+    jsonFIleR = jsonFile.read()
+    jsonData = json.loads(jsonFIleR)
+
+    name = jsonData["name"]
+    creator = jsonData["creator"]
+    size = jsonData["size"]
+    date = jsonData["date"]
+
+    print('\n' + name)
+    print('======')
+    print(f'Creator: {creator}')
+    print(f'Size: {size}')
+    print(f'Date: {date}')
+
+    restoreSpinner.start()
+    shutil.copytree(f'{source}/Data', destination, dirs_exist_ok=True)
+    restoreSpinner.stop_and_persist()
+    print('Done!')
+
+
 print(f'- KTBackup vALPHA-0.1 on {username}@{hostname}/{o_system}')
-runChecks(source, destination)
-backup(source, destination, name, username, hostname)
+if sys.argv[1] != '--restore':
+    runChecks(source, destination)
+    backup(source, destination, name, username, hostname)
+else:
+    print('- Entering restore mode.')
+    source = sys.argv[2]
+    destination = sys.argv[3]
+    restore(source, destination)
