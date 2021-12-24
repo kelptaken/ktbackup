@@ -5,10 +5,25 @@
 
 global isHaloAvailable
 
-import os, sys, shutil, socket, getpass, datetime, traceback, filecmp, platform
+import os
+import sys
+import shutil
+import socket
+import getpass
+import datetime
+import traceback
+import filecmp
+import platform
+import pathlib
+import time
 try:
     from halo import Halo
     isHaloAvailable = True
+    backupSpinnerAnim = {
+    'interval': 300,
+    'frames': ['[-----]', '[#----]', '[-#---]', '[--#--]', '[---#-]', '[----#]']
+}
+    backupSpinner = Halo(text='Backing up...', spinner=backupSpinnerAnim)
 except BaseException:
     isHaloAvailable = False
 
@@ -98,12 +113,42 @@ def runChecks(source, destination):
     print('- All checks passed.')
 
 
+# Get raw size of folder
+def get_size(folder: str) -> int:
+    return sum(p.stat().st_size for p in pathlib.Path(folder).rglob('*'))
+
+
+# Convert raw size to human-readable
+def filesize(size: int) -> str:
+     for unit in ("B", "K", "M", "G", "T"):
+         if size < 1024:
+             break
+         size /= 1024
+     return f"{size:.1f}{unit}"
+
+
 # Backup
 def backup(source, destination, name, username, hostname):
-   print('\n' + name)
-   print('======')
-   print()
+    print('\n' + name)
+    print('======')
+    print(f'Creator: {username}@{hostname}/{o_system}')
+    print(f'Size: {filesize(get_size(source))}')
+    print(f'Date: {datetime.date.today()}')
 
+    if isHaloAvailable == True:
+        backupSpinner.start()
+        shutil.copytree(source, destination, dirs_exist_ok=True)
+        backupSpinner.stop_and_persist()
+        print('Done!')
+    elif isHaloAvailable == False:
+        print('/ Backing up...')
+        shutil.copytree(source, destination, dirs_exist_ok=True)
+        print('Done!')
+    else:
+        print('! Caught "else" statement while checking Halo availability. Not using Halo.')
+        print('/ Backing up...')
+        shutil.copytree(source, destination, dirs_exist_ok=True)
+        print('Done!')
 
 print(f'- KTBackup vALPHA-0.1 on {username}@{hostname}/{o_system}')
 runChecks(source, destination)
