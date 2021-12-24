@@ -1,4 +1,4 @@
-# Local Backup Tool
+# KTBackup
 # by @kelptaken --- 24.12.21
 
 ### --- PREPARING --- ###
@@ -20,13 +20,6 @@ import pathlib
 import time
 import json
 
-"""
-jfile = open('Dest/Amebus/ktbackup.json', 'r')  
-bebra = jfile.read()                            
-bebruskins = json.loads(bebra)                         For my nasty purposes :)
-print(bebruskins["ameba"])
-exit()
-"""
 try:
     from halo import Halo
     isHaloAvailable = True
