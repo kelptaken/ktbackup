@@ -4,6 +4,8 @@
 ### --- PREPARING --- ###
 
 global isHaloAvailable
+global source
+global destination
 
 import os
 import sys
@@ -16,6 +18,15 @@ import filecmp
 import platform
 import pathlib
 import time
+import json
+
+"""
+jfile = open('Dest/Amebus/ktbackup.json', 'r')  
+bebra = jfile.read()                            
+bebruskins = json.loads(bebra)                         For my nasty purposes :)
+print(bebruskins["ameba"])
+exit()
+"""
 try:
     from halo import Halo
     isHaloAvailable = True
@@ -35,6 +46,8 @@ try:
     username = getpass.getuser()
     hostname = socket.gethostname()
     o_system = platform.system()
+    datapath = f'{os.getcwd()}/{destination}/{name}/Data'
+    bkpath = f'{os.getcwd()}/{destination}/{name}'
 except IndexError:
     print('! No arguments passed.')
     print('- Usage:')
@@ -67,8 +80,7 @@ def runChecks(source, destination):
     if os.path.exists(source) == True:
         print('- Source exists.')
     elif os.path.exists(source) == False:
-        print('- Source does not exist, creating folder.')
-        os.mkdir(source)
+        exit('! Backup source does not exist. Exiting.')
     else:
         exit('! Caught "else" statement while checking existence of source. Exiting.')
     
@@ -97,13 +109,20 @@ def runChecks(source, destination):
     else:
         exit('! Caught "else" statement while checking source type. Exiting.')
 
-    # Check if source = destination
+    # Check if source = destination. I don't know how this code works, I literally wrote it while sleeping
     if compare(source, destination) == True:
         if len(os.listdir(source)) == 0:
             print('- Source is empty.')
             if len(os.listdir(destination)) == 0:
                 print('- Destination is empty.')
         else:
+            if source != destination:
+                try:
+                    print('! Content in source and destination is the same, deleting destination')
+                    shutil.rmtree(destination)
+                    os.mkdir(destination)
+                except PermissionError:
+                    exit('! Unable to delete destination (Permission denied). Exiting.')
             exit("! Source and destination can't be the same directory. Exiting.")
     elif compare(source, destination) == False:
         print('- Source and destination are different.')
@@ -127,6 +146,21 @@ def filesize(size: int) -> str:
      return f"{size:.1f}{unit}"
 
 
+# Create backup folder structure
+def createStructure(source, destination):
+    print('- Creating directory structure...')
+    os.makedirs(datapath)
+    jsonFileContent = {
+        'name': str(name),
+        'creator': f'{username}@{hostname}/{o_system}',
+        'size': f'{filesize(get_size(source))}',
+        'date': str(datetime.date.today())
+        }
+    jsonFile = open(f'{bkpath}/ktbackup.json', 'w')
+    json.dump(jsonFileContent, jsonFile)
+
+
+
 # Backup
 def backup(source, destination, name, username, hostname):
     print('\n' + name)
@@ -135,19 +169,22 @@ def backup(source, destination, name, username, hostname):
     print(f'Size: {filesize(get_size(source))}')
     print(f'Date: {datetime.date.today()}')
 
+    createStructure(source, destination)
+
     if isHaloAvailable == True:
         backupSpinner.start()
-        shutil.copytree(source, destination, dirs_exist_ok=True)
+        shutil.copytree(source, datapath, dirs_exist_ok=True)
         backupSpinner.stop_and_persist()
         print('Done!')
+    
     elif isHaloAvailable == False:
         print('/ Backing up...')
-        shutil.copytree(source, destination, dirs_exist_ok=True)
+        shutil.copytree(source, datapath, dirs_exist_ok=True)
         print('Done!')
     else:
         print('! Caught "else" statement while checking Halo availability. Not using Halo.')
         print('/ Backing up...')
-        shutil.copytree(source, destination, dirs_exist_ok=True)
+        shutil.copytree(source, datapath, dirs_exist_ok=True)
         print('Done!')
 
 print(f'- KTBackup vALPHA-0.1 on {username}@{hostname}/{o_system}')
