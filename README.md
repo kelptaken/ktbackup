@@ -15,7 +15,7 @@ This folder will have two objects: `ktbackup.json` and `Data` folder.
 `ktbackup.json` will contain information about your backup: name, creator (your computer username, hostname, and OS), creation date and size. This will be used when restoring.
 `Data` will contain your source folder content.
 
-## Restore
+#### Restore
 ```ktbackup.py --restore <source> <destination>```
 
 Source is your backup folder (where Data and ktbackup.json are located).
