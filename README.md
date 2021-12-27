@@ -1,4 +1,4 @@
-# KTBackup BETA
+# KTBackup ALPHA
 Local backup made easy, with Python and shutil
 
 ## Features
